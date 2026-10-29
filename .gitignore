@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+data/gallery_features.pkl
+.venv/
