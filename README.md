@@ -3,6 +3,8 @@
 Identify a pill from a photo using classical computer vision (OpenCV, no machine learning).
 Load a photo, and the app finds the pill, measures its shape and colour, and looks it up in a database of 251 known pills by matching SIFT keypoints. It also tells you when a pill is probably *not* in the database.
 
+**[Live demo](https://ethan-thomas-mathew.github.io/PillScope/)**: pick a sample photo and step through the pipeline in your browser (saved results, not live processing).
+
 ![Identify tab](docs/screenshots/identify.png)
 
 This project combines the eight Computer Vision lab programs (Lab 1 to Lab 8) and the pill-database tool into one application. Each lab is now one stage of the pipeline, and the original lab experiments are still available in the **Explore the labs** tab.
