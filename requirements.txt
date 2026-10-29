@@ -1,0 +1,6 @@
+numpy>=1.23
+opencv-python>=4.5
+matplotlib>=3.6
+Pillow>=9.0
+# Tkinter comes with the standard Python installer on Windows/macOS.
+# On Linux: sudo apt install python3-tk
