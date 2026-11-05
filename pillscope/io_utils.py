@@ -7,8 +7,9 @@ import numpy as np
 MAX_SIDE = 1200      # bigger photos are shrunk so every tool stays fast
 
 
-def imread(path, max_side=None):
-    """Read an image as BGR. Works with non-English folder names on Windows. Returns None on failure."""
+def imread(path, max_side=MAX_SIDE):
+    """Read an image as BGR. Works with non-English folder names on Windows. Returns None on failure.
+    Shrinks the image if it's bigger than `max_side` on its longest edge (pass max_side=None to skip)."""
     try:
         data = np.fromfile(str(path), dtype=np.uint8)
         img = cv2.imdecode(data, cv2.IMREAD_COLOR)
