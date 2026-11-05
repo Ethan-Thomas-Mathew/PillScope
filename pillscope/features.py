@@ -1,4 +1,4 @@
-"""Lab 8 - feature detection and description: SIFT, ORB, HOG, matching."""
+"""Feature detection and description: SIFT, ORB, HOG, matching."""
 import cv2
 import numpy as np
 

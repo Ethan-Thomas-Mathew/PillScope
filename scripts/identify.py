@@ -9,10 +9,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pillscope import pipeline, report                          # noqa: E402
-from pillscope.config import OUTPUT_DIR, Settings              # noqa: E402
-from pillscope.database import PillDatabase                    # noqa: E402
-from pillscope.io_utils import imread                          # noqa: E402
+from pillscope import pipeline, report  # noqa: E402
+from pillscope.config import OUTPUT_DIR, Settings  # noqa: E402
+from pillscope.database import PillDatabase  # noqa: E402
+from pillscope.io_utils import imread  # noqa: E402
 
 
 def main():

@@ -22,9 +22,9 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pillscope.config import OUTPUT_DIR, Settings          # noqa: E402
-from pillscope.database import PillDatabase                # noqa: E402
-from pillscope.pipeline import analyze, identify           # noqa: E402
+from pillscope.config import OUTPUT_DIR, Settings  # noqa: E402
+from pillscope.database import PillDatabase  # noqa: E402
+from pillscope.pipeline import analyze, identify  # noqa: E402
 
 PATTERN = re.compile(r"^\((\d+)\)(.+)\.(jpg|jpeg|png)$", re.IGNORECASE)
 

@@ -2,9 +2,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from .. import pipeline
 from ..config import IMAGE_FILETYPES
-from ..database import SHAPES, PillDatabase
+from ..database import SHAPES
 from ..io_utils import imread
 from .common import to_photo
 

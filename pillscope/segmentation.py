@@ -1,4 +1,4 @@
-"""Lab 7 - segmentation: region growing, plus automatic pill extraction."""
+"""Segmentation: region growing, plus automatic pill extraction."""
 from collections import deque
 
 import cv2
@@ -8,7 +8,7 @@ FOUR_NEIGHBORS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 EIGHT_NEIGHBORS = FOUR_NEIGHBORS + [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 
-# ---------------------------------------------------------------- region growing (Lab 7)
+# ---------------------------------------------------------------- region growing
 def region_growing(gray, seed, threshold, connectivity=4):
     """Start at `seed` (row, col) and add neighbours whose grey value is within
     `threshold` of the region's running mean. Returns (mask, pixel count, mean)."""

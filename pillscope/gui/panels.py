@@ -1,7 +1,7 @@
-"""Explore tab: one small interactive panel for each lab, all working on the current photo."""
+"""Explore tab: one small interactive panel per technique, all working on the current photo."""
 import time
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
 
 import cv2
 import numpy as np
@@ -120,10 +120,10 @@ class Panel(ttk.Frame):
         return var
 
 
-# ---------------------------------------------------------------------------- Lab 1
+# ---------------------------------------------------------------------------- basic operations
 class BasicOpsPanel(Panel):
     title = "Basic operations"
-    help_text = ("Lab 1: colour conversion, rotate / scale / shift / flip, add / subtract brightness, "
+    help_text = ("Colour conversion, rotate / scale / shift / flip, add / subtract brightness, "
                  "bitwise operations. The slider is the 'p' value in the operation's name.")
 
     def build_controls(self, f):
@@ -147,10 +147,10 @@ class BasicOpsPanel(Panel):
             basic_ops.save_as(self.result, path)
 
 
-# ---------------------------------------------------------------------------- Lab 2
+# ---------------------------------------------------------------------------- filters
 class FilterPanel(Panel):
     title = "Filters"
-    help_text = ("Lab 2: correlation slides the kernel as is; convolution flips it first. "
+    help_text = ("Correlation slides the kernel as is; convolution flips it first. "
                  "For a symmetric kernel (blur) they are identical, for Sobel/Emboss they are not.")
 
     def build_controls(self, f):
@@ -172,10 +172,10 @@ class FilterPanel(Panel):
         fig.suptitle(f"{self.kernel.get()} - {same}", fontsize=10)
 
 
-# ---------------------------------------------------------------------------- Lab 3
+# ---------------------------------------------------------------------------- sampling & quantization
 class SamplingPanel(Panel):
     title = "Sampling & quantization"
-    help_text = ("Lab 3: sampling lowers the spatial resolution, quantization lowers the number of grey levels. "
+    help_text = ("Sampling lowers the spatial resolution, quantization lowers the number of grey levels. "
                  "'Detail' counts Canny edge pixels that survive.")
 
     def build_controls(self, f):
@@ -194,10 +194,10 @@ class SamplingPanel(Panel):
             show(ax, im, f"{t}\ndetail {sampling.detail_score(im)}")
 
 
-# ---------------------------------------------------------------------------- Lab 4
+# ---------------------------------------------------------------------------- colour spaces
 class ColorPanel(Panel):
     title = "Colour spaces"
-    help_text = ("Lab 4: the same photo in different colour spaces, channel by channel, with histograms. "
+    help_text = ("The same photo in different colour spaces, channel by channel, with histograms. "
                  "The 'colour signature' (average colour of the pill) is what the database stores.")
 
     def build_controls(self, f):
@@ -206,7 +206,6 @@ class ColorPanel(Panel):
     def draw(self, fig, img):
         space = self.space.get()
         labels, channels = color.get_channels(img, space)
-        n = len(channels)
         gs = fig.add_gridspec(2, 4, hspace=0.35)
         show(fig.add_subplot(gs[0, 0]), img, "Original")
         for i, (label, ch) in enumerate(zip(labels, channels)):
@@ -227,10 +226,10 @@ class ColorPanel(Panel):
         ax.set_xlabel(f"H={sig['hue']} S={sig['saturation']} V={sig['value']}\nL={sig['L']} a={sig['a']} b={sig['b']}", fontsize=7)
 
 
-# ---------------------------------------------------------------------------- Lab 5
+# ---------------------------------------------------------------------------- Fourier transform
 class FourierPanel(Panel):
     title = "Fourier transform"
-    help_text = ("Lab 5: the photo as frequencies. Low-pass keeps the smooth shape (blur); "
+    help_text = ("The photo as frequencies. Low-pass keeps the smooth shape (blur); "
                  "high-pass keeps edges and fine speckle. D0 is the cut-off radius.")
 
     def build_controls(self, f):
@@ -251,10 +250,10 @@ class FourierPanel(Panel):
         show(axes[5], high, "High-pass result (edges, detail)")
 
 
-# ---------------------------------------------------------------------------- Lab 6
+# ---------------------------------------------------------------------------- edge detection
 class EdgePanel(Panel):
     title = "Edge detection"
-    help_text = ("Lab 6: Sobel, Canny and Laplacian-of-Gaussian on the same preprocessed image. "
+    help_text = ("Sobel, Canny and Laplacian-of-Gaussian on the same preprocessed image. "
                  "The bar chart counts edge pixels - lower thresholds give more edges (and more noise).")
 
     def build_controls(self, f):
@@ -279,10 +278,10 @@ class EdgePanel(Panel):
         axes[5].set_title("Edge pixel count", fontsize=9)
 
 
-# ---------------------------------------------------------------------------- Lab 7
+# ---------------------------------------------------------------------------- segmentation
 class SegmentationPanel(Panel):
     title = "Segmentation"
-    help_text = ("Lab 7: region growing starts at a seed pixel (click the left picture) and adds neighbours "
+    help_text = ("Region growing starts at a seed pixel (click the left picture) and adds neighbours "
                  "whose grey value is close to the region's average. The two 'automatic' modes are what the "
                  "Identify tab uses to find the pill.")
 
@@ -335,10 +334,10 @@ class SegmentationPanel(Panel):
         fig.suptitle(label, fontsize=10)
 
 
-# ---------------------------------------------------------------------------- Lab 8
+# ---------------------------------------------------------------------------- features
 class FeaturePanel(Panel):
     title = "Features (SIFT / ORB / HOG)"
-    help_text = ("Lab 8: SIFT (accurate, slower) vs ORB (fast, binary). The photo is rotated and matched back "
+    help_text = ("SIFT (accurate, slower) vs ORB (fast, binary). The photo is rotated and matched back "
                  "to itself - good matches = rotation robustness. HOG is a global description built from edge directions.")
 
     def build_controls(self, f):

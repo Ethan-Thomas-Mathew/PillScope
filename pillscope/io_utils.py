@@ -28,5 +28,5 @@ def imwrite(path, img):
     ext = Path(path).suffix or ".png"
     ok, buf = cv2.imencode(ext, img)
     if not ok:
-        raise IOError(f"Could not encode {path}")
+        raise OSError(f"Could not encode {path}")
     buf.tofile(str(path))

@@ -145,7 +145,7 @@ footer{padding-top:26px;border-top:1px solid var(--line);color:var(--muted);font
   <div class="facts">
     <span><b>99.1%</b> top-1 on 227 real rotated photos</span>
     <span><b>0.08 s</b> per photo</span>
-    <span>Labs 1 to 8 in one app</span>
+    <span>Classical CV, no ML</span>
   </div>
   <div class="links">
     <a class="btn primary" href="https://github.com/Ethan-Thomas-Mathew/PillScope" target="_blank" rel="noopener">View code on GitHub</a>
@@ -188,14 +188,14 @@ footer{padding-top:26px;border-top:1px solid var(--line);color:var(--muted);font
 <section>
   <div style="display:grid;gap:6px">
     <h2>How it works</h2>
-    <p class="sub">Each of the eight Computer Vision labs became one part of the pipeline. The labs that are not part of the identification are still in the app, in the Explore tab.</p>
+    <p class="sub">Eight classical computer-vision techniques, each its own stage of the pipeline. The ones not part of identification itself are still in the app, in the Explore tab.</p>
   </div>
   <ol class="steps">
-    <li><div><b>Find the pill</b></div><span class="lab">Lab 7 · segmentation</span><p>Compare every pixel with the background colour, let Otsu's method pick the cut-off, and keep the largest blob. Region growing from the corners is the alternative.</p></li>
-    <li><div><b>Measure shape and colour</b></div><span class="lab">Lab 4 · colour spaces</span><p>Circularity and aspect ratio name the shape. The base colour is measured in HSV and LAB, and strongly coloured speckles are reported separately.</p></li>
-    <li><div><b>Clean up and find edges</b></div><span class="lab">Labs 1 and 6</span><p>Crop to the pill, convert to grey, median blur to remove noise, CLAHE to lift contrast, then Canny edges.</p></li>
-    <li><div><b>Describe the pill</b></div><span class="lab">Labs 4, 5, 8</span><p>A colour histogram, a rotation-proof FFT texture profile, HOG edge directions, and SIFT keypoints.</p></li>
-    <li><div><b>Match and decide</b></div><span class="lab">Lab 8 · SIFT</span><p>SIFT keypoints are paired with Lowe's ratio test. Only pairs that agree on one rotation, scale and shift are counted. Right matches have 29 or more; pills that are not in the database have about 3.</p></li>
+    <li><div><b>Find the pill</b></div><span class="lab">Segmentation</span><p>Compare every pixel with the background colour, let Otsu's method pick the cut-off, and keep the largest blob. Region growing from the corners is the alternative.</p></li>
+    <li><div><b>Measure shape and colour</b></div><span class="lab">Colour spaces</span><p>Circularity and aspect ratio name the shape. The base colour is measured in HSV and LAB, and strongly coloured speckles are reported separately.</p></li>
+    <li><div><b>Clean up and find edges</b></div><span class="lab">Preprocessing</span><p>Crop to the pill, convert to grey, median blur to remove noise, CLAHE to lift contrast, then Canny edges.</p></li>
+    <li><div><b>Describe the pill</b></div><span class="lab">Feature descriptors</span><p>A colour histogram, a rotation-proof FFT texture profile, HOG edge directions, and SIFT keypoints.</p></li>
+    <li><div><b>Match and decide</b></div><span class="lab">SIFT matching</span><p>SIFT keypoints are paired with Lowe's ratio test. Only pairs that agree on one rotation, scale and shift are counted. Right matches have 29 or more; pills that are not in the database have about 3.</p></li>
   </ol>
 </section>
 

@@ -1,4 +1,4 @@
-"""Lab 2 - spatial filtering: correlation vs convolution with 3x3 kernels."""
+"""Spatial filtering: correlation vs convolution with 3x3 kernels."""
 import cv2
 import numpy as np
 

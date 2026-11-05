@@ -64,17 +64,17 @@ class Match:
 def analyze(img_bgr, settings=None):
     s = settings or Settings()
     a = PillAnalysis(image=img_bgr)
-    a.mask = segmentation.segment_pill(img_bgr, s.seg_method)                      # Lab 7
+    a.mask = segmentation.segment_pill(img_bgr, s.seg_method)
     a.shape_info = segmentation.describe_shape(a.mask)
-    a.color_info = color.color_signature(img_bgr, a.mask)                         # Lab 4
+    a.color_info = color.color_signature(img_bgr, a.mask)
     a.crop, a.crop_mask = segmentation.crop_to_mask(img_bgr, a.mask, s.work_size)
-    a.gray = edges.preprocess(basic_ops.to_gray(a.crop), s.denoise, s.clahe)      # Lab 1 + 6
-    a.edge_map = edges.canny_edges(a.gray, 50, 150)                               # Lab 6
+    a.gray = edges.preprocess(basic_ops.to_gray(a.crop), s.denoise, s.clahe)
+    a.edge_map = edges.canny_edges(a.gray, 50, 150)
     a.edge_count = edges.edge_pixel_count(a.edge_map)
-    a.lab_hist = color.lab_histogram(a.crop, a.crop_mask)                         # Lab 4
-    a.radial = frequency.radial_energy(a.gray)                                    # Lab 5
-    a.hog = features.hog_vector(a.gray)                                           # Lab 8
-    kps, desc = features.detect_sift(a.gray, a.crop_mask)                         # Lab 8
+    a.lab_hist = color.lab_histogram(a.crop, a.crop_mask)
+    a.radial = frequency.radial_energy(a.gray)
+    a.hog = features.hog_vector(a.gray)
+    kps, desc = features.detect_sift(a.gray, a.crop_mask)
     if desc is None:
         kps, desc = [], np.zeros((0, 128), dtype=np.float32)
     a.kp_pts = np.float32([k.pt for k in kps]).reshape(-1, 2)
@@ -124,7 +124,7 @@ def identify(query, database, settings=None):
 
     # Stage 2: SIFT only for the shortlist
     matches = []
-    for pre, row, ref, parts in quick[:s.shortlist]:
+    for _pre, row, ref, parts in quick[:s.shortlist]:
         sc, inliers, _ = sift_score(query, ref, s.sift_ratio)
         parts = dict(parts, sift=sc)
         matches.append(Match(row=row, score=combine(parts), parts=parts, inliers=inliers))

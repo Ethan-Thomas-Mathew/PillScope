@@ -18,9 +18,9 @@ IMAGE_FILETYPES = [("Image files", "*.jpg *.jpeg *.png *.bmp *.tiff"), ("All fil
 class Settings:
     """Knobs of the identification pipeline (all editable in the app)."""
     work_size: int = 192          # the pill crop is resized to work_size x work_size
-    denoise: bool = True          # Lab 6: median blur before analysis
-    clahe: bool = True            # Lab 6: local contrast boost
-    seg_method: str = "threshold"  # "threshold" or "region_growing" (Lab 7)
-    sift_ratio: float = 0.75      # Lab 8: Lowe ratio test
+    denoise: bool = True          # median blur before analysis
+    clahe: bool = True            # local contrast boost
+    seg_method: str = "threshold"  # "threshold" or "region_growing"
+    sift_ratio: float = 0.75      # Lowe ratio test
     shortlist: int = 400          # how many database pills get the slower SIFT check (best by quick clues first)
     top_k: int = 5                # how many matches to show

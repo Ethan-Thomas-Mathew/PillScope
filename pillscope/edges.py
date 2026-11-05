@@ -1,4 +1,4 @@
-"""Lab 6 - edge detection: Sobel, Canny, Laplacian-of-Gaussian."""
+"""Edge detection: Sobel, Canny, Laplacian-of-Gaussian."""
 import cv2
 import numpy as np
 

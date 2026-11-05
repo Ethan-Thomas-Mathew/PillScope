@@ -56,7 +56,7 @@ class PillScopeApp(tk.Tk):
         explore = ttk.Notebook(self.tabs)
         for panel_cls in ALL_PANELS:
             explore.add(panel_cls(explore, self.state), text=panel_cls.title)
-        self.tabs.add(explore, text="  Explore the labs  ")
+        self.tabs.add(explore, text="  Explore  ")
 
         self.database = DatabaseTab(self.tabs, self.state, self.set_status)
         self.tabs.add(self.database, text="  Database  ")

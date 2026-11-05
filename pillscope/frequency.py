@@ -1,4 +1,4 @@
-"""Lab 5 - Fourier transform: spectra, ideal low/high-pass filters, texture descriptor."""
+"""Fourier transform: spectra, ideal low/high-pass filters, texture descriptor."""
 import numpy as np
 
 

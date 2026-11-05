@@ -7,18 +7,18 @@ Load a photo, and the app finds the pill, measures its shape and colour, and loo
 
 ![Identify tab](docs/screenshots/identify.png)
 
-This project combines the eight Computer Vision lab programs (Lab 1 to Lab 8) and the pill-database tool into one application. Each lab is now one stage of the pipeline, and the original lab experiments are still available in the **Explore the labs** tab.
+This project combines eight classical computer-vision techniques - segmentation, filtering, sampling, colour, frequency analysis, edge detection, feature matching - into one pipeline and one application. Each technique is now one stage of the pipeline, and the standalone building blocks are still available, side by side with their own sliders, in the **Explore** tab.
 
 ## How it works
 
 ```
 photo
-  |  Lab 7  find the pill: threshold the difference from the background (or grow the background
-  |         from the corners), keep the biggest blob
-  |  Lab 7  measure the outline: shape name, circularity, aspect ratio
-  |  Lab 4  colour signature: base colour (HSV / LAB) + coloured speckles
-  |  Lab 1+6  crop, grayscale, median denoise, CLAHE contrast, Canny edges
-  |  Lab 4  colour histogram   Lab 5  FFT texture profile   Lab 8  HOG + SIFT keypoints
+  |  find the pill: threshold the difference from the background (or grow the background
+  |  from the corners), keep the biggest blob
+  |  measure the outline: shape name, circularity, aspect ratio
+  |  colour signature: base colour (HSV / LAB) + coloured speckles
+  |  crop, grayscale, median denoise, CLAHE contrast, Canny edges
+  |  colour histogram, FFT texture profile, HOG + SIFT keypoints
   v
 compare with every pill in the database  ->  rank the best matches  ->  verdict
 ```
@@ -27,19 +27,19 @@ The deciding clue is **SIFT**: keypoints are matched with Lowe's ratio test, the
 *Confident match* (20+), *Possible match* (10 to 19) or *No reliable match* (under 10).
 Colour, FFT texture and HOG are cheaper clues that add to the score and break ties.
 
-| Lab | Original file | Module | Used for |
-|---|---|---|---|
-| 1 | `lab 1(a).py`, `lab 1(b).py` | `basic_ops.py` | grayscale, geometry, arithmetic (Explore tab) |
-| 2 | `Lab2CV.py` | `spatial.py` | convolution vs correlation (Explore tab) |
-| 3 | `Lab3CV.py` | `sampling.py` | sampling and quantization (Explore tab) |
-| 4 | `Lab4CV.py` | `color.py` | colour signature and histogram (pipeline) |
-| 5 | `Lab5CV.py` | `frequency.py` | FFT texture profile (pipeline), ideal filters (Explore) |
-| 6 | `Lab6CV.py` | `edges.py` | denoise, CLAHE, Canny (pipeline), Sobel/LoG (Explore) |
-| 7 | `Lab7CV.py` | `segmentation.py` | pill outline and shape (pipeline), region growing (Explore) |
-| 8 | `Lab8CV.py` | `features.py` | SIFT matching and HOG (pipeline), ORB comparison (Explore) |
-| DB | `pillDatabase.py` | `database.py` | CSV database, validation checks, feature cache |
+| Module | Used for |
+|---|---|
+| `basic_ops.py` | grayscale, geometry, arithmetic (Explore tab) |
+| `spatial.py` | convolution vs correlation (Explore tab) |
+| `sampling.py` | sampling and quantization (Explore tab) |
+| `color.py` | colour signature and histogram (pipeline) |
+| `frequency.py` | FFT texture profile (pipeline), ideal filters (Explore) |
+| `edges.py` | denoise, CLAHE, Canny (pipeline), Sobel/LoG (Explore) |
+| `segmentation.py` | pill outline and shape (pipeline), region growing (Explore) |
+| `features.py` | SIFT matching and HOG (pipeline), ORB comparison (Explore) |
+| `database.py` | CSV database, validation checks, feature cache |
 
-Labs 2 and 3 are not part of the identification itself; they live in the Explore tab.
+`spatial.py` and `sampling.py` aren't part of identification itself; they live in the Explore tab.
 
 ## Results
 
@@ -116,7 +116,7 @@ git push space main:main
 | Tab | What it does |
 |---|---|
 | **Identify** | Photo to answer, with every pipeline stage shown, the top 5 matches, and a picture of the matching keypoints. "Save report picture" exports a summary. |
-| **Explore the labs** | One panel per lab with sliders: basic operations, filters, sampling, colour spaces, Fourier, edges, segmentation (click to place a seed), SIFT/ORB/HOG. |
+| **Explore** | One panel per technique, with sliders: basic operations, filters, sampling, colour spaces, Fourier, edges, segmentation (click to place a seed), SIFT/ORB/HOG. |
 | **Database** | Browse, edit and delete pills, add a pill from a photo (shape and colour are measured for you), import a folder, and run the checks from the original `pillDatabase.py` (missing fields, colour that disagrees with the image, duplicate imprints). |
 
 ![Features panel](docs/screenshots/explore_features.png)

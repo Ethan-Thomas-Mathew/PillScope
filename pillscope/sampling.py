@@ -1,4 +1,4 @@
-"""Lab 3 - sampling (spatial resolution) and quantization (grey levels)."""
+"""Sampling (spatial resolution) and quantization (grey levels)."""
 import cv2
 import numpy as np
 

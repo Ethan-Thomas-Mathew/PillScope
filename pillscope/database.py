@@ -5,10 +5,9 @@ import pickle
 import shutil
 from pathlib import Path
 
-
 from . import color
-from .io_utils import imread
 from .config import CACHE_FILE, DB_CSV, GALLERY_DIR, IMAGE_PATTERNS, Settings
+from .io_utils import imread
 from .pipeline import analyze
 
 FIELDNAMES = [

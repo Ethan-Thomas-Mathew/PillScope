@@ -2,9 +2,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-import cv2
-import numpy as np
-
 from .. import pipeline, report
 from ..config import OUTPUT_DIR
 from ..io_utils import imread

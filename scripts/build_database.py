@@ -14,8 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pillscope.config import CACHE_FILE, DB_CSV, GALLERY_DIR, SAMPLES_DIR, Settings   # noqa: E402
-from pillscope.database import PillDatabase                               # noqa: E402
+from pillscope.config import CACHE_FILE, DB_CSV, GALLERY_DIR, SAMPLES_DIR, Settings  # noqa: E402
+from pillscope.database import PillDatabase  # noqa: E402
 
 PATTERN = re.compile(r"^\((\d+)\)(.+)\.(jpg|jpeg|png)$", re.IGNORECASE)    # (12)r30.jpg
 PLAIN = re.compile(r"^(\d+)\.(jpg|jpeg|png)$", re.IGNORECASE)                  # 12.jpg

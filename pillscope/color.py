@@ -1,4 +1,4 @@
-"""Lab 4 - color spaces, channels, and the pill 'color signature'."""
+"""Color spaces, channels, and the pill 'color signature'."""
 import cv2
 import numpy as np
 

@@ -1,4 +1,4 @@
-"""Lab 1 - basic image operations: format/color conversion, geometry, arithmetic."""
+"""Basic image operations: format/color conversion, geometry, arithmetic."""
 import cv2
 import numpy as np
 
