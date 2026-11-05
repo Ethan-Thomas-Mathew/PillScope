@@ -1,13 +1,17 @@
 """Small file helpers."""
 from pathlib import Path
+from typing import Optional, Union
 
 import cv2
 import numpy as np
 
 MAX_SIDE = 1200      # bigger photos are shrunk so every tool stays fast
 
+PathLike = Union[str, Path]
+BGRImage = np.ndarray  # cv2's stubs aren't precise enough for a tighter dtype here
 
-def imread(path, max_side=MAX_SIDE):
+
+def imread(path: PathLike, max_side: Optional[int] = MAX_SIDE) -> Optional[BGRImage]:
     """Read an image as BGR. Works with non-English folder names on Windows. Returns None on failure.
     Shrinks the image if it's bigger than `max_side` on its longest edge (pass max_side=None to skip)."""
     try:
@@ -23,7 +27,7 @@ def imread(path, max_side=MAX_SIDE):
     return img
 
 
-def imwrite(path, img):
+def imwrite(path: PathLike, img: BGRImage) -> None:
     """Write an image (format chosen from the extension). Works with non-English folder names."""
     ext = Path(path).suffix or ".png"
     ok, buf = cv2.imencode(ext, img)

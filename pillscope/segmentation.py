@@ -1,15 +1,31 @@
 """Segmentation: region growing, plus automatic pill extraction."""
 from collections import deque
+from typing import TypedDict
 
 import cv2
 import numpy as np
+
+BGRImage = np.ndarray  # cv2's stubs aren't precise enough for a tighter dtype here
+GrayImage = np.ndarray  # same reason
+Mask = np.ndarray
 
 FOUR_NEIGHBORS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 EIGHT_NEIGHBORS = FOUR_NEIGHBORS + [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 
+class ShapeInfo(TypedDict):
+    area: int
+    perimeter: float
+    circularity: float
+    aspect: float
+    vertices: int
+    shape: str
+
+
 # ---------------------------------------------------------------- region growing
-def region_growing(gray, seed, threshold, connectivity=4):
+def region_growing(
+    gray: GrayImage, seed: tuple[int, int], threshold: float, connectivity: int = 4
+) -> tuple[Mask, int, float]:
     """Start at `seed` (row, col) and add neighbours whose grey value is within
     `threshold` of the region's running mean. Returns (mask, pixel count, mean)."""
     h, w = gray.shape
@@ -39,7 +55,9 @@ def region_growing(gray, seed, threshold, connectivity=4):
     return region, count, total / count
 
 
-def make_overlay(gray, region, color=(255, 60, 60), alpha=0.45):
+def make_overlay(
+    gray: GrayImage, region: Mask, color: tuple[int, int, int] = (255, 60, 60), alpha: float = 0.45
+) -> np.ndarray:
     """Paint the region on top of the grey image (returns RGB)."""
     base = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB).astype(np.float64)
     out = base.copy()
@@ -48,7 +66,7 @@ def make_overlay(gray, region, color=(255, 60, 60), alpha=0.45):
 
 
 # ---------------------------------------------------------------- automatic pill mask
-def _largest_blob(binary):
+def _largest_blob(binary: np.ndarray) -> np.ndarray:
     """Keep only the biggest white blob and fill any holes inside it."""
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     out = np.zeros_like(binary)
@@ -58,14 +76,14 @@ def _largest_blob(binary):
     return out
 
 
-def _clean(binary):
+def _clean(binary: np.ndarray) -> np.ndarray:
     k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, k)
     binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, k)
     return _largest_blob(binary)
 
 
-def _background_color(lab):
+def _background_color(lab: np.ndarray) -> np.ndarray:
     """Median colour of a thin frame around the picture = the background."""
     b = 4
     frame = np.concatenate([lab[:b].reshape(-1, 3), lab[-b:].reshape(-1, 3),
@@ -73,7 +91,7 @@ def _background_color(lab):
     return np.median(frame, axis=0)
 
 
-def segment_threshold(img_bgr):
+def segment_threshold(img_bgr: BGRImage) -> Mask:
     """Pill = pixels whose colour differs from the background (Otsu picks the cut-off)."""
     lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
     dist = np.sqrt(((lab - _background_color(lab)) ** 2).sum(axis=2))
@@ -84,7 +102,7 @@ def segment_threshold(img_bgr):
     return _clean(binary) > 0
 
 
-def segment_region_growing(img_bgr, threshold=14):
+def segment_region_growing(img_bgr: BGRImage, threshold: float = 14) -> Mask:
     """Grow the background from the four corners, then flip it: what is left is the pill."""
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     h, w = gray.shape
@@ -95,7 +113,7 @@ def segment_region_growing(img_bgr, threshold=14):
     return _clean((~background).astype(np.uint8) * 255) > 0
 
 
-def segment_pill(img_bgr, method="threshold"):
+def segment_pill(img_bgr: BGRImage, method: str = "threshold") -> Mask:
     """Return a boolean mask of the pill. Falls back to 'whole image' if nothing is found."""
     mask = segment_region_growing(img_bgr) if method == "region_growing" else segment_threshold(img_bgr)
     frac = mask.mean()
@@ -105,7 +123,7 @@ def segment_pill(img_bgr, method="threshold"):
 
 
 # ---------------------------------------------------------------- shape analysis
-def describe_shape(mask):
+def describe_shape(mask: Mask) -> ShapeInfo:
     """Measure the pill outline and name its shape (names match the database)."""
     contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
@@ -141,7 +159,9 @@ def describe_shape(mask):
             "aspect": round(float(aspect), 2), "vertices": vertices, "shape": shape}
 
 
-def crop_to_mask(img, mask, size, fill="mean", erode=4):
+def crop_to_mask(
+    img: BGRImage, mask: Mask, size: int, fill: str = "mean", erode: int = 4
+) -> tuple[BGRImage, Mask]:
     """Cut the pill out, make it square, resize to `size`.
     Background pixels are painted with the pill's average colour so they make no keypoints.
     Returns (crop image, crop mask)."""

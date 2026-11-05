@@ -1,26 +1,39 @@
 """Feature detection and description: SIFT, ORB, HOG, matching."""
+from typing import Optional
+
 import cv2
 import numpy as np
+
+GrayImage = np.ndarray  # same reason
+Mask = np.ndarray
+Descriptors = np.ndarray
 
 RATIO_THRESH = 0.75
 
 
 # ---------------------------------------------------------------- local features
-def detect_sift(gray, mask=None):
-    return cv2.SIFT_create().detectAndCompute(gray, None if mask is None else mask.astype(np.uint8) * 255)
+def detect_sift(
+    gray: GrayImage, mask: Optional[Mask] = None
+) -> tuple[tuple[cv2.KeyPoint, ...], Optional[Descriptors]]:
+    # SIFT_create/ORB_create exist at runtime (tested directly) but cv2's stubs don't declare them
+    return cv2.SIFT_create().detectAndCompute(gray, None if mask is None else mask.astype(np.uint8) * 255)  # type: ignore[attr-defined]
 
 
-def detect_orb(gray, nfeatures=500, mask=None):
-    return cv2.ORB_create(nfeatures=nfeatures).detectAndCompute(gray, None if mask is None else mask.astype(np.uint8) * 255)
+def detect_orb(
+    gray: GrayImage, nfeatures: int = 500, mask: Optional[Mask] = None
+) -> tuple[tuple[cv2.KeyPoint, ...], Optional[Descriptors]]:
+    return cv2.ORB_create(nfeatures=nfeatures).detectAndCompute(gray, None if mask is None else mask.astype(np.uint8) * 255)  # type: ignore[attr-defined]
 
 
-def rotate_image(gray, angle_deg):
+def rotate_image(gray: GrayImage, angle_deg: float) -> GrayImage:
     h, w = gray.shape[:2]
     m = cv2.getRotationMatrix2D((w / 2.0, h / 2.0), angle_deg, 1.0)
     return cv2.warpAffine(gray, m, (w, h), borderMode=cv2.BORDER_REPLICATE)
 
 
-def ratio_test_matches(desc1, desc2, norm_type=cv2.NORM_L2, ratio=RATIO_THRESH):
+def ratio_test_matches(
+    desc1: Optional[Descriptors], desc2: Optional[Descriptors], norm_type: int = cv2.NORM_L2, ratio: float = RATIO_THRESH
+) -> list[cv2.DMatch]:
     """Lowe's ratio test: keep a match only if it is clearly better than the 2nd best."""
     if desc1 is None or desc2 is None or len(desc1) < 2 or len(desc2) < 2:
         return []
@@ -31,18 +44,20 @@ def ratio_test_matches(desc1, desc2, norm_type=cv2.NORM_L2, ratio=RATIO_THRESH):
     return good
 
 
-def geometric_inliers(kp1_pts, kp2_pts, matches, reproj=6.0):
+def geometric_inliers(
+    kp1_pts: np.ndarray, kp2_pts: np.ndarray, matches: list[cv2.DMatch], reproj: float = 6.0
+) -> int:
     """Keep only matches that agree on one rotation+scale+shift (RANSAC). Returns inlier count."""
     if len(matches) < 3:
         return 0
-    src = np.float32([kp1_pts[m.queryIdx] for m in matches])
-    dst = np.float32([kp2_pts[m.trainIdx] for m in matches])
+    src = np.array([kp1_pts[m.queryIdx] for m in matches], dtype=np.float32)
+    dst = np.array([kp2_pts[m.trainIdx] for m in matches], dtype=np.float32)
     _, inliers = cv2.estimateAffinePartial2D(src, dst, method=cv2.RANSAC, ransacReprojThreshold=reproj)
     return 0 if inliers is None else int(inliers.sum())
 
 
 # ---------------------------------------------------------------- HOG (global feature)
-def compute_hog(gray, cell_size=8, nbins=9):
+def compute_hog(gray: GrayImage, cell_size: int = 8, nbins: int = 9) -> np.ndarray:
     """Histogram of Oriented Gradients, one normalised histogram per cell."""
     h, w = gray.shape
     hc, wc = max(1, h // cell_size), max(1, w // cell_size)
@@ -61,13 +76,15 @@ def compute_hog(gray, cell_size=8, nbins=9):
     return np.where(norms > 1e-6, cell_hist / np.maximum(norms, 1e-6), 0).astype(np.float32)
 
 
-def hog_vector(gray, cell_size=16, nbins=9):
+def hog_vector(gray: GrayImage, cell_size: int = 16, nbins: int = 9) -> np.ndarray:
     v = compute_hog(gray, cell_size, nbins).flatten()
     n = np.linalg.norm(v)
     return v / n if n > 0 else v
 
 
-def hog_visualization(gray, cell_hist, cell_size=8, nbins=9):
+def hog_visualization(
+    gray: GrayImage, cell_hist: np.ndarray, cell_size: int = 8, nbins: int = 9
+) -> np.ndarray:
     """Draw a little line for each strong gradient direction in each cell."""
     hc, wc, _ = cell_hist.shape
     vis = cv2.cvtColor(gray[:hc * cell_size, :wc * cell_size], cv2.COLOR_GRAY2BGR)
@@ -89,6 +106,6 @@ def hog_visualization(gray, cell_hist, cell_size=8, nbins=9):
     return vis
 
 
-def cosine_similarity(a, b):
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     na, nb = np.linalg.norm(a), np.linalg.norm(b)
     return float(np.dot(a, b) / (na * nb)) if na > 0 and nb > 0 else 0.0

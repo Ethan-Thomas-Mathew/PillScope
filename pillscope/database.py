@@ -4,11 +4,15 @@ import datetime
 import pickle
 import shutil
 from pathlib import Path
+from typing import Any, Callable, Optional, Union
 
 from . import color
 from .config import CACHE_FILE, DB_CSV, GALLERY_DIR, IMAGE_PATTERNS, Settings
 from .io_utils import imread
-from .pipeline import analyze
+from .pipeline import PillAnalysis, analyze
+
+PathLike = Union[str, Path]
+Row = dict[str, Any]
 
 FIELDNAMES = [
     "id", "dateAdded", "imageFilename", "name", "shape", "colorName",
@@ -21,23 +25,24 @@ REQUIRED_FIELDS = ["name", "shape", "imprintCode", "dosageMg", "manufacturer"]
 
 
 class PillDatabase:
-    def __init__(self, csv_path=DB_CSV, gallery_dir=GALLERY_DIR, cache_path=CACHE_FILE):
+    def __init__(self, csv_path: PathLike = DB_CSV, gallery_dir: PathLike = GALLERY_DIR,
+                 cache_path: PathLike = CACHE_FILE) -> None:
         self.csv_path = Path(csv_path)
         self.gallery_dir = Path(gallery_dir)
         self.cache_path = Path(cache_path)
-        self.rows = []
-        self.features = {}        # imageFilename -> lite PillAnalysis
-        self._fingerprint = None
+        self.rows: list[Row] = []
+        self.features: dict[str, PillAnalysis] = {}        # imageFilename -> lite PillAnalysis
+        self._fingerprint: Optional[tuple[Any, ...]] = None
         self.load()
 
     # ---------------------------------------------------------- csv
-    def load(self):
+    def load(self) -> None:
         self.rows = []
         if self.csv_path.exists():
             with open(self.csv_path, newline="", encoding="utf-8") as f:
                 self.rows = list(csv.DictReader(f))
 
-    def save(self):
+    def save(self) -> None:
         self.csv_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.csv_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
@@ -45,23 +50,23 @@ class PillDatabase:
             for r in self.rows:
                 writer.writerow({k: r.get(k, "") for k in FIELDNAMES})
 
-    def next_id(self):
+    def next_id(self) -> int:
         ids = [int(r["id"]) for r in self.rows if str(r.get("id", "")).isdigit()]
         return max(ids) + 1 if ids else 1
 
-    def image_path(self, row):
+    def image_path(self, row: Row) -> Path:
         return self.gallery_dir / row["imageFilename"]
 
-    def find(self, row_id):
+    def find(self, row_id: Any) -> Optional[Row]:
         return next((r for r in self.rows if str(r["id"]) == str(row_id)), None)
 
-    def delete(self, row_id):
+    def delete(self, row_id: Any) -> None:
         self.rows = [r for r in self.rows if str(r["id"]) != str(row_id)]
 
     # ---------------------------------------------------------- adding pills
-    def make_row(self, analysis, filename, name="", **extra):
+    def make_row(self, analysis: PillAnalysis, filename: str, name: str = "", **extra: Any) -> Row:
         """Build a database row from an analysed photo (shape/colour filled automatically)."""
-        row = {k: "" for k in FIELDNAMES}
+        row: Row = {k: "" for k in FIELDNAMES}
         row.update(id=self.next_id(), dateAdded=datetime.date.today().isoformat(),
                    imageFilename=filename, name=name or f"Pill {self.next_id():03d}",
                    shape=analysis.shape_info["shape"], colorName=self._color_text(analysis.color_info),
@@ -72,11 +77,11 @@ class PillDatabase:
         return row
 
     @staticmethod
-    def _color_text(info):
+    def _color_text(info: dict[str, Any]) -> str:
         """'white' or, for speckled pills, 'white, blue speckles'."""
         return info["colorName"] + (f", {info['accent']} speckles" if info.get("accent") else "")
 
-    def add_image(self, image_path, settings=None, **fields):
+    def add_image(self, image_path: PathLike, settings: Optional[Settings] = None, **fields: Any) -> Row:
         """Copy a photo into the gallery, analyse it, and add a row."""
         image_path = Path(image_path)
         self.gallery_dir.mkdir(parents=True, exist_ok=True)
@@ -94,7 +99,8 @@ class PillDatabase:
         self.features[dest.name] = a.lite()
         return row
 
-    def import_folder(self, folder, settings=None, progress=None):
+    def import_folder(self, folder: PathLike, settings: Optional[Settings] = None,
+                       progress: Optional[Callable[[int, int], None]] = None) -> int:
         """Add every image in a folder."""
         files = sorted(p for pat in IMAGE_PATTERNS for p in Path(folder).glob(pat))
         for i, p in enumerate(files):
@@ -105,10 +111,10 @@ class PillDatabase:
 
     # ---------------------------------------------------------- feature cache
     @staticmethod
-    def _fp(settings):
+    def _fp(settings: Settings) -> tuple[Any, ...]:
         return (settings.work_size, settings.denoise, settings.clahe, settings.seg_method)
 
-    def load_cache(self, settings):
+    def load_cache(self, settings: Settings) -> None:
         self.features = {}
         if self.cache_path.exists():
             try:
@@ -120,7 +126,8 @@ class PillDatabase:
                 self.features = {}
         self._fingerprint = self._fp(settings)
 
-    def ensure_features(self, settings=None, progress=None):
+    def ensure_features(self, settings: Optional[Settings] = None,
+                         progress: Optional[Callable[[int, int], None]] = None) -> int:
         """Make sure every row has features; compute the missing ones and save the cache."""
         settings = settings or Settings()
         if self._fingerprint != self._fp(settings):
@@ -136,23 +143,23 @@ class PillDatabase:
             self.save_cache()
         return len(todo)
 
-    def save_cache(self):
+    def save_cache(self) -> None:
         self.cache_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.cache_path, "wb") as f:
             pickle.dump({"fingerprint": self._fingerprint, "features": self.features}, f)
 
-    def entries(self):
+    def entries(self) -> list[tuple[Row, PillAnalysis]]:
         """(row, features) pairs that are ready for matching."""
         return [(r, self.features[r["imageFilename"]]) for r in self.rows
                 if r["imageFilename"] in self.features]
 
     # ---------------------------------------------------------- checks (from pillDatabase.py)
     @staticmethod
-    def missing_required_fields(row):
+    def missing_required_fields(row: Row) -> list[str]:
         return [f for f in REQUIRED_FIELDS if not str(row.get(f, "")).strip()]
 
     @staticmethod
-    def color_mismatch(row):
+    def color_mismatch(row: Row) -> Optional[str]:
         """If the typed colour disagrees with the measured colour, return the measured name."""
         name = str(row.get("colorName", "")).strip().lower()
         h, s, v = row.get("hue", ""), row.get("saturation", ""), row.get("value", "")
@@ -166,8 +173,9 @@ class PillDatabase:
             return detected
         return None
 
-    def duplicate_imprints(self):
-        seen, dupes = {}, []
+    def duplicate_imprints(self) -> list[tuple[Row, Row]]:
+        seen: dict[tuple[str, str], Row] = {}
+        dupes: list[tuple[Row, Row]] = []
         for r in self.rows:
             key = (str(r.get("imprintCode", "")).strip().lower(), str(r.get("dosageMg", "")).strip())
             if not key[0]:
@@ -178,7 +186,7 @@ class PillDatabase:
                 seen[key] = r
         return dupes
 
-    def validate(self):
+    def validate(self) -> list[str]:
         """Return a list of human-readable problems."""
         problems = []
         no_imprint = sum(1 for r in self.rows if not str(r.get("imprintCode", "")).strip())

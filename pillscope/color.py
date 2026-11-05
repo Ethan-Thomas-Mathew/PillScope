@@ -1,6 +1,25 @@
 """Color spaces, channels, and the pill 'color signature'."""
+from collections.abc import Sequence
+from typing import Optional, TypedDict
+
 import cv2
 import numpy as np
+
+BGRImage = np.ndarray  # cv2's stubs aren't precise enough for a tighter dtype here
+Mask = np.ndarray
+
+
+class ColorSignature(TypedDict):
+    hue: float
+    saturation: float
+    value: float
+    L: float
+    a: float
+    b: float
+    colorName: str
+    accent: str
+    accentPercent: float
+
 
 COLOR_SPACES = {
     "Grayscale": (cv2.COLOR_BGR2GRAY, ("Gray",)),
@@ -24,11 +43,11 @@ HUE_COLOR_NAMES = [
 ]
 
 
-def convert(img_bgr, space):
+def convert(img_bgr: BGRImage, space: str) -> BGRImage:
     return cv2.cvtColor(img_bgr, COLOR_SPACES[space][0])
 
 
-def get_channels(img_bgr, space):
+def get_channels(img_bgr: BGRImage, space: str) -> tuple[Sequence[str], list[BGRImage]]:
     converted = convert(img_bgr, space)
     labels = COLOR_SPACES[space][1]
     if converted.ndim == 2:
@@ -36,13 +55,13 @@ def get_channels(img_bgr, space):
     return labels, [converted[:, :, i] for i in range(converted.shape[2])]
 
 
-def channel_histogram(channel, space, idx):
+def channel_histogram(channel: BGRImage, space: str, idx: int) -> tuple[np.ndarray, int, int]:
     lo, hi = CHANNEL_RANGE.get(space, [(0, 256)] * 3)[idx]
     hist = cv2.calcHist([channel], [0], None, [hi - lo], [lo, hi])
     return hist.flatten(), lo, hi
 
 
-def classify_color_name(h, s, v):
+def classify_color_name(h: float, s: float, v: float) -> str:
     """Turn mean H, S, V into a plain colour word."""
     if v < 50:
         return "black"
@@ -56,7 +75,7 @@ def classify_color_name(h, s, v):
     return "unknown"
 
 
-def _circular_mean_hue(hue, weights=None):
+def _circular_mean_hue(hue: BGRImage, weights: Optional[Mask] = None) -> float:
     """Hue is an angle (red is both 0 and 179), so a plain average can be wrong."""
     angle = hue.astype(np.float32) * 2.0 * np.pi / 180.0
     s, c = np.sin(angle), np.cos(angle)
@@ -65,7 +84,7 @@ def _circular_mean_hue(hue, weights=None):
     return float((np.arctan2(s.mean(), c.mean()) % (2 * np.pi)) * 180.0 / (2 * np.pi))
 
 
-def color_signature(img_bgr, mask=None):
+def color_signature(img_bgr: BGRImage, mask: Optional[Mask] = None) -> ColorSignature:
     """Colour of the pill (only pixels inside `mask`, if given).
 
     Speckled pills have a pale base plus a few strongly coloured dots. A plain average would be
@@ -95,7 +114,7 @@ def color_signature(img_bgr, mask=None):
     }
 
 
-def lab_histogram(img_bgr, mask=None, bins=8):
+def lab_histogram(img_bgr: BGRImage, mask: Optional[Mask] = None, bins: int = 8) -> np.ndarray:
     """Rotation-proof colour descriptor: a normalised 3D histogram in LAB space."""
     lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
     m = None if mask is None else mask.astype(np.uint8) * 255

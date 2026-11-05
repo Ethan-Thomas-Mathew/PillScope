@@ -1,5 +1,9 @@
 # PillScope
 
+[![CI](https://github.com/Ethan-Thomas-Mathew/PillScope/actions/workflows/ci.yml/badge.svg)](https://github.com/Ethan-Thomas-Mathew/PillScope/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](pyproject.toml)
+
 Identify a pill from a photo using classical computer vision (OpenCV, no machine learning).
 Load a photo, and the app finds the pill, measures its shape and colour, and looks it up in a database of 251 known pills by matching SIFT keypoints. It also tells you when a pill is probably *not* in the database.
 
