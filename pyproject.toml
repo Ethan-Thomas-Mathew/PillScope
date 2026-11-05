@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pillscope"
+version = "1.0.0"
+description = "Identify a pill from a photo using classical computer vision (OpenCV, no machine learning)."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Ethan Thomas Mathew", email = "mailethann@gmail.com" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+]
+dependencies = [
+    "numpy>=1.23",
+    "opencv-python>=4.5",
+    "matplotlib>=3.6",
+    "Pillow>=9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ethan-Thomas-Mathew/PillScope"
+"Live demo" = "https://ethan-thomas-mathew.github.io/PillScope/"
+
+[project.scripts]
+pillscope = "pillscope.gui.app:main"
+
+[tool.setuptools]
+packages = ["pillscope", "pillscope.gui"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]  # long lines happen in dense numpy expressions; not worth splitting
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+exclude = ["pillscope/gui/", "scripts/", "tests/"]
