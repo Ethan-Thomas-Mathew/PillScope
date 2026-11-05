@@ -1,6 +1,7 @@
 numpy>=1.23
-opencv-python>=4.5
+opencv-python-headless>=4.5
 matplotlib>=3.6
 Pillow>=9.0
+gradio>=4.0           # only needed to run the web demo (app.py), not the desktop app
 # Tkinter comes with the standard Python installer on Windows/macOS.
 # On Linux: sudo apt install python3-tk

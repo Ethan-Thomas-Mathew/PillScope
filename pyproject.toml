@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.23",
-    "opencv-python>=4.5",
+    "opencv-python-headless>=4.5",
     "matplotlib>=3.6",
     "Pillow>=9.0",
 ]
@@ -29,6 +29,9 @@ dev = [
     "pytest>=7.4",
     "ruff>=0.6",
     "mypy>=1.10",
+]
+demo = [
+    "gradio>=4.0",
 ]
 
 [project.urls]

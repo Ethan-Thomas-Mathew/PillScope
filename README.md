@@ -3,7 +3,7 @@
 Identify a pill from a photo using classical computer vision (OpenCV, no machine learning).
 Load a photo, and the app finds the pill, measures its shape and colour, and looks it up in a database of 251 known pills by matching SIFT keypoints. It also tells you when a pill is probably *not* in the database.
 
-**[Live demo](https://ethan-thomas-mathew.github.io/PillScope/)**: pick a sample photo and step through the pipeline in your browser (saved results, not live processing).
+**[Pipeline walkthrough](https://ethan-thomas-mathew.github.io/PillScope/)**: step through what each stage sees, with saved results (instant, no server). **[Try it live](https://huggingface.co/spaces/Ethan-Thomas-Mathew/pillscope)**: upload your own pill photo and get a real answer from the actual pipeline, running on the spot.
 
 ![Identify tab](docs/screenshots/identify.png)
 
@@ -84,6 +84,31 @@ Rebuild the database from the dataset folder (the files named `12.jpg` are the o
 ```
 python scripts/build_database.py --source "C:/path/to/pill_images"
 python scripts/evaluate.py --source "C:/path/to/pill_images"
+```
+
+## Web demo
+
+`app.py` is a small [Gradio](https://gradio.app) front end over the same `pillscope` package the desktop
+app and CLI use — there's no separate "demo" implementation to keep in sync. It ships as a
+[Hugging Face Space](https://huggingface.co/spaces/Ethan-Thomas-Mathew/pillscope): pick one of the sample
+photos or upload your own, and it runs the real pipeline (segmentation, colour, texture, HOG, SIFT
+matching) against the 251-pill database and returns a real answer, not a saved one.
+
+Run it locally the same way it runs on the Space:
+
+```
+pip install -r requirements.txt
+python app.py
+```
+
+To deploy your own copy: create a (free) [Hugging Face Space](https://huggingface.co/new-space) with
+SDK **Gradio**, then push this repo to it and copy `SPACE_README.md`'s content into the Space's
+`README.md` (that file carries the Space's configuration, which this repo's own `README.md` doesn't
+need):
+
+```
+git remote add space https://huggingface.co/spaces/<your-username>/<space-name>
+git push space main:main
 ```
 
 ## The app

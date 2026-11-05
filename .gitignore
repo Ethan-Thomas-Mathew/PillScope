@@ -2,3 +2,11 @@ __pycache__/
 *.pyc
 data/gallery_features.pkl
 .venv/
+gradio_cached_examples/
+flagged/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
